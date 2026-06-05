@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { MoonlitSea } from "./MoonlitSea";
 import { DeepDescent } from "./DeepDescent";
 import { PirateGalleon } from "./PirateGalleon";
+import { ParallaxVoyage } from "./ParallaxVoyage";
 
 export type SceneMeta = {
   /** url slug, kebab-case */
@@ -42,6 +43,13 @@ export const SCENES: SceneMeta[] = [
     title: "Pirate Galleon",
     blurb: "A tall ship under sail on a moonlit sea, sails bellied to the wind.",
     component: PirateGalleon,
+    ready: true,
+  },
+  {
+    slug: "parallax-voyage",
+    title: "Parallax Voyage",
+    blurb: "Scroll from the moonlit surface down into the deep — layered parallax.",
+    component: ParallaxVoyage,
     ready: true,
   },
 ];
