@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { MoonlitSea } from "./MoonlitSea";
+import { DeepDescent } from "./DeepDescent";
 
 export type SceneMeta = {
   /** url slug, kebab-case */
@@ -26,6 +27,13 @@ export const SCENES: SceneMeta[] = [
     title: "Moonlit Sea",
     blurb: "A ship adrift on a shimmering night sea. The reference scene.",
     component: MoonlitSea,
+    ready: true,
+  },
+  {
+    slug: "deep-descent",
+    title: "Deep Descent",
+    blurb: "The dive beneath — god-rays, marine snow, the light dying into the deep.",
+    component: DeepDescent,
     ready: true,
   },
 ];
