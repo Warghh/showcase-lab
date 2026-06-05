@@ -3,6 +3,7 @@ import { MoonlitSea } from "./MoonlitSea";
 import { DeepDescent } from "./DeepDescent";
 import { PirateGalleon } from "./PirateGalleon";
 import { ParallaxVoyage } from "./ParallaxVoyage";
+import { TreasureHoard } from "./TreasureHoard";
 
 export type SceneMeta = {
   /** url slug, kebab-case */
@@ -50,6 +51,13 @@ export const SCENES: SceneMeta[] = [
     title: "Parallax Voyage",
     blurb: "Scroll from the moonlit surface down into the deep — layered parallax.",
     component: ParallaxVoyage,
+    ready: true,
+  },
+  {
+    slug: "treasure-hoard",
+    title: "Treasure Hoard",
+    blurb: "A mound of gold in the dark, a single warm light raking the glints.",
+    component: TreasureHoard,
     ready: true,
   },
 ];
