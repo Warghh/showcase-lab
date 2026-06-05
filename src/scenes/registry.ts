@@ -4,6 +4,7 @@ import { DeepDescent } from "./DeepDescent";
 import { PirateGalleon } from "./PirateGalleon";
 import { ParallaxVoyage } from "./ParallaxVoyage";
 import { TreasureHoard } from "./TreasureHoard";
+import { DeepCreature } from "./DeepCreature";
 
 export type SceneMeta = {
   /** url slug, kebab-case */
@@ -58,6 +59,13 @@ export const SCENES: SceneMeta[] = [
     title: "Treasure Hoard",
     blurb: "A mound of gold in the dark, a single warm light raking the glints.",
     component: TreasureHoard,
+    ready: true,
+  },
+  {
+    slug: "deep-creature",
+    title: "The Deep Creature",
+    blurb: "A bioluminescent jellyfish pulsing in the black, lit by its own glow.",
+    component: DeepCreature,
     ready: true,
   },
 ];
