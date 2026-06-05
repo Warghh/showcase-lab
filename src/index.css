@@ -1,0 +1,49 @@
+/* showcase-lab — gold light in velvet dark.
+   Shared with warghh.com's design language so scenes port cleanly. */
+
+:root {
+  --bg: #040404;
+  --fg: #f5ecd8;
+  --surface: #1b1b1c;
+  --line: #6b5418;
+  --accent: #e7c667;
+  --accent-soft: #f0d98a;
+
+  --font-display: "Cinzel", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* house easing — ease-out-quint-ish, no bounce */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* velvet film grain — the tactile layer */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: var(--accent); text-decoration: none; }
+
+.display { font-family: var(--font-display); letter-spacing: 0.1em; font-weight: 700; }
+
+button { font-family: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
