@@ -5,6 +5,9 @@ import { PirateGalleon } from "./PirateGalleon";
 import { ParallaxVoyage } from "./ParallaxVoyage";
 import { TreasureHoard } from "./TreasureHoard";
 import { DeepCreature } from "./DeepCreature";
+import { ShaderOcean } from "./ShaderOcean";
+import { ParticleFlow } from "./ParticleFlow";
+// import { StormSea } from "./StormSea";
 
 export type SceneMeta = {
   /** url slug, kebab-case */
@@ -68,6 +71,27 @@ export const SCENES: SceneMeta[] = [
     component: DeepCreature,
     ready: true,
   },
+  {
+    slug: "shader-ocean",
+    title: "Shader Ocean",
+    blurb: "Gerstner waves rolling in velvet dark, gilded with a warm maritime sheen.",
+    component: ShaderOcean,
+    ready: true,
+  },
+  {
+    slug: "particle-flow",
+    title: "Particle Flow Field",
+    blurb: "5000+ points drifting through a curl-noise vector field — gold and pale-blue motes streaming.",
+    component: ParticleFlow,
+    ready: true,
+  },
+  // {
+  //   slug: "storm-sea",
+  //   title: "Storm at Sea",
+  //   blurb: "A galleon battered by tempest: lightning-split skies, driving rain, gold lantern light against the gloom.",
+  //   component: StormSea,
+  //   ready: true,
+  // },
 ];
 
 export function getScene(slug: string): SceneMeta | undefined {
