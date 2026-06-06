@@ -8,6 +8,7 @@ import { DeepCreature } from "./DeepCreature";
 import { ShaderOcean } from "./ShaderOcean";
 import { ParticleFlow } from "./ParticleFlow";
 import { JellyfishBloom } from "./JellyfishBloom";
+import { KrakenRises } from "./KrakenRises";
 // import { StormSea } from "./StormSea";
 
 export type SceneMeta = {
@@ -91,6 +92,13 @@ export const SCENES: SceneMeta[] = [
     title: "Jellyfish Bloom",
     blurb: "A drifting swarm of bioluminescent jellyfish, pulsing in sync and out of phase, glowing in the dark.",
     component: JellyfishBloom,
+    ready: true,
+  },
+  {
+    slug: "kraken-rises",
+    title: "The Kraken Rises",
+    blurb: "A procedural kraken surfacing from the black: tentacles curling up, bioluminescent suckers gleaming, menace over detail.",
+    component: KrakenRises,
     ready: true,
   },
   // {
