@@ -9,6 +9,7 @@ import { ShaderOcean } from "./ShaderOcean";
 import { ParticleFlow } from "./ParticleFlow";
 import { JellyfishBloom } from "./JellyfishBloom";
 import { KrakenRises } from "./KrakenRises";
+import { ConstellationNavigator } from "./ConstellationNavigator";
 // import { StormSea } from "./StormSea";
 
 export type SceneMeta = {
@@ -99,6 +100,13 @@ export const SCENES: SceneMeta[] = [
     title: "The Kraken Rises",
     blurb: "A procedural kraken surfacing from the black: tentacles curling up, bioluminescent suckers gleaming, menace over detail.",
     component: KrakenRises,
+    ready: true,
+  },
+  {
+    slug: "constellation-navigator",
+    title: "Constellation Navigator",
+    blurb: "An interactive celestial sphere of gold stars, constellations traced by light, and a slowly turning maritime compass.",
+    component: ConstellationNavigator,
     ready: true,
   },
   // {
