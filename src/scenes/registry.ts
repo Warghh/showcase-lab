@@ -7,6 +7,7 @@ import { TreasureHoard } from "./TreasureHoard";
 import { DeepCreature } from "./DeepCreature";
 import { ShaderOcean } from "./ShaderOcean";
 import { ParticleFlow } from "./ParticleFlow";
+import { JellyfishBloom } from "./JellyfishBloom";
 // import { StormSea } from "./StormSea";
 
 export type SceneMeta = {
@@ -83,6 +84,13 @@ export const SCENES: SceneMeta[] = [
     title: "Particle Flow Field",
     blurb: "5000+ points drifting through a curl-noise vector field — gold and pale-blue motes streaming.",
     component: ParticleFlow,
+    ready: true,
+  },
+  {
+    slug: "jellyfish-bloom",
+    title: "Jellyfish Bloom",
+    blurb: "A drifting swarm of bioluminescent jellyfish, pulsing in sync and out of phase, glowing in the dark.",
+    component: JellyfishBloom,
     ready: true,
   },
   // {
