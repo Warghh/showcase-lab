@@ -1,0 +1,326 @@
+import { useEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { SceneFrame } from "../components/SceneFrame";
+
+const GOLD = "#e7c667";
+const OCEAN_DARK = "#06121a";
+const OCEAN_DEEP = "#0a1820";
+
+/** Galleon ship battered by tempest — hull, mast, sails with gold rim glow. */
+function Galleon() {
+  const group = useRef<THREE.Group>(null);
+  const reduce = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  useFrame((state) => {
+    if (!group.current) return;
+    const t = state.clock.elapsedTime;
+    const speed = reduce ? 0.1 : 1;
+    // violent pitch and roll in the storm
+    group.current.rotation.z = Math.sin(t * 0.8 * speed) * 0.12;
+    group.current.rotation.x = Math.sin(t * 0.6 * speed) * 0.08;
+    group.current.position.y = Math.sin(t * 1.2 * speed) * 0.15 - 0.1;
+  });
+
+  return (
+    <group ref={group} position={[0, 0, 0]}>
+      {/* hull — dark wood */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[2.2, 0.5, 0.9]} />
+        <meshStandardMaterial 
+          color="#0d0b06" 
+          roughness={0.9} 
+          metalness={0.05}
+          emissive="#1a1304"
+          emissiveIntensity={0.08}
+        />
+      </mesh>
+      
+      {/* prow */}
+      <mesh position={[1.3, 0.08, 0]} rotation={[0, 0, -0.3]}>
+        <coneGeometry args={[0.32, 0.8, 6]} />
+        <meshStandardMaterial 
+          color="#0d0b06" 
+          roughness={0.9}
+          emissive="#1a1304"
+          emissiveIntensity={0.06}
+        />
+      </mesh>
+
+      {/* mast — towering */}
+      <mesh position={[0, 1.1, 0]}>
+        <cylinderGeometry args={[0.05, 0.06, 2, 6]} />
+        <meshStandardMaterial 
+          color="#1a1304" 
+          roughness={0.85}
+          emissive="#1a1304"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+
+      {/* tattered sails — catching lightning glint */}
+      <mesh position={[0.1, 1.1, -0.15]} rotation={[0, 0, 0.06]}>
+        <planeGeometry args={[1.3, 1.4]} />
+        <meshStandardMaterial
+          color="#8b7355"
+          emissive={GOLD}
+          emissiveIntensity={0.15}
+          roughness={1}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* gold lantern — ship's soul in the darkness */}
+      <pointLight 
+        position={[0.5, 0.8, 0.3]} 
+        intensity={3.5} 
+        color={GOLD} 
+        distance={10} 
+      />
+
+      {/* gold rim on hull edge */}
+      <mesh position={[0, -0.3, 0]} rotation={[0, 0, 0]}>
+        <torusGeometry args={[1.2, 0.08, 6, 32]} />
+        <meshStandardMaterial
+          color={GOLD}
+          emissive={GOLD}
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+/** Turbulent sea with shader-driven wave displacement. */
+function TurbulentSea() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const shaderRef = useRef<{ material: THREE.ShaderMaterial } | null>(null);
+  const reduce = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  useEffect(() => {
+    if (!meshRef.current) return;
+
+    const material = meshRef.current.material as THREE.MeshStandardMaterial;
+
+    // Create custom shader for wave displacement via onBeforeCompile
+    const originalOnBeforeCompile = material.onBeforeCompile;
+    material.onBeforeCompile = (shader) => {
+      if (originalOnBeforeCompile) originalOnBeforeCompile(shader);
+
+      shader.uniforms.uTime = { value: 0 };
+      shader.uniforms.uWaveAmp = { value: reduce ? 0.15 : 0.3 };
+
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <common>",
+        `
+        #include <common>
+        uniform float uTime;
+        uniform float uWaveAmp;
+        
+        float noise(vec3 p) {
+          return sin(p.x * 0.5 + uTime * 0.3) * 0.5 + sin(p.z * 0.3 + uTime * 0.4) * 0.3;
+        }
+        `
+      );
+
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <worldpos_vertex>",
+        `
+        #include <worldpos_vertex>
+        float wave1 = sin(worldPosition.x * 0.4 + uTime * 0.5) * uWaveAmp;
+        float wave2 = sin(worldPosition.z * 0.5 - uTime * 0.4) * uWaveAmp * 0.7;
+        float wave3 = sin((worldPosition.x + worldPosition.z) * 0.3 + uTime * 0.3) * uWaveAmp * 0.5;
+        worldPosition.y += wave1 + wave2 + wave3;
+        `
+      );
+
+      shaderRef.current = { material: shader as any };
+    };
+  }, [reduce]);
+
+  useFrame((state) => {
+    if (shaderRef.current && shaderRef.current.material) {
+      shaderRef.current.material.uniforms.uTime.value = state.clock.elapsedTime;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]}>
+      <planeGeometry args={[80, 80, 256, 256]} />
+      <meshStandardMaterial
+        color={OCEAN_DARK}
+        emissive={OCEAN_DEEP}
+        emissiveIntensity={0.3}
+        roughness={0.2}
+        metalness={0.5}
+        fog={false}
+      />
+    </mesh>
+  );
+}
+
+/** Driving rain — streaks of water cutting through the tempest. */
+function Rain() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const positionsRef = useRef<Float32Array | null>(null);
+  const reduce = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  useEffect(() => {
+    if (!pointsRef.current) return;
+
+    const rainCount = 400;
+    const positions = new Float32Array(rainCount * 3);
+    
+    for (let i = 0; i < rainCount; i++) {
+      positions[i * 3 + 0] = (Math.random() - 0.5) * 30; // x
+      positions[i * 3 + 1] = Math.random() * 8; // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 30; // z
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    positionsRef.current = positions;
+
+    pointsRef.current.geometry = geometry;
+  }, []);
+
+  useFrame((state) => {
+    if (!pointsRef.current || !positionsRef.current) return;
+
+    const positions = positionsRef.current;
+    const rainSpeed = reduce ? 0.5 : 5;
+
+    for (let i = 0; i < positions.length; i += 3) {
+      positions[i + 1] -= rainSpeed * 0.016; // falling
+      
+      if (positions[i + 1] < -2) {
+        positions[i + 1] = 8; // wrap to top
+      }
+    }
+
+    const attr = pointsRef.current.geometry.getAttribute("position") as THREE.BufferAttribute;
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <pointsMaterial
+        size={0.08}
+        color="#d0e8f2"
+        opacity={0.5}
+        transparent
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
+/** Lightning flash effect — brief intense light + screen flash. */
+function LightningFlash() {
+  const lightRef = useRef<THREE.DirectionalLight>(null);
+  const overlayRef = useRef<THREE.Mesh>(null);
+  const flashTimerRef = useRef<number>(0);
+  const nextFlashRef = useRef<number>(3);
+  const reduce = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    flashTimerRef.current += 0.016;
+
+    if (flashTimerRef.current >= nextFlashRef.current) {
+      nextFlashRef.current = flashTimerRef.current + (reduce ? 6 + Math.random() * 6 : 3 + Math.random() * 5);
+      
+      // Quick lightning pulse
+      const flashDuration = 0.25;
+      const flashStart = flashTimerRef.current;
+      
+      if (!lightRef.current) return;
+      
+      // Intense white flash
+      const timeSinceFlash = flashTimerRef.current - flashStart;
+      if (timeSinceFlash < flashDuration) {
+        const flashIntensity = Math.exp(-timeSinceFlash / (flashDuration * 0.3)) * 4;
+        lightRef.current.intensity = flashIntensity;
+      } else {
+        lightRef.current.intensity = 0.2;
+      }
+    } else if (lightRef.current) {
+      lightRef.current.intensity = 0.2;
+    }
+
+    // Overlay flash on screen
+    if (overlayRef.current) {
+      const timeSinceFlash = flashTimerRef.current - (nextFlashRef.current - (reduce ? 12 : 8));
+      const flashDuration = 0.3;
+      
+      if (timeSinceFlash > -flashDuration && timeSinceFlash < flashDuration) {
+        const intensity = Math.max(0, 1 - Math.abs(timeSinceFlash) / flashDuration);
+        const material = overlayRef.current.material as THREE.MeshStandardMaterial;
+        material.emissiveIntensity = intensity * 0.8;
+      } else {
+        const material = overlayRef.current.material as THREE.MeshStandardMaterial;
+        material.emissiveIntensity = 0;
+      }
+    }
+  });
+
+  return (
+    <>
+      {/* Intense white directional light for lightning */}
+      <directionalLight
+        ref={lightRef}
+        position={[-8, 12, 4]}
+        intensity={0.2}
+        color="#ffffff"
+      />
+
+      {/* Flash overlay — full-screen brightness pulse */}
+      <mesh position={[0, 0, -4.9]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial
+          color="#ffffff"
+          emissive="#ffffff"
+          emissiveIntensity={0}
+          transparent
+          opacity={0.3}
+          depthTest={false}
+          depthWrite={false}
+        />
+      </mesh>
+    </>
+  );
+}
+
+export function StormSea() {
+  return (
+    <SceneFrame cameraPosition={[0, 1.2, 6]}>
+      {/* Key light from the turbulent sky */}
+      <ambientLight intensity={0.15} color="#16202a" />
+      
+      {/* Faint top light suggesting storm clouds */}
+      <directionalLight
+        position={[2, 8, -3]}
+        intensity={0.2}
+        color="#2a3a4a"
+      />
+
+      {/* Storm components */}
+      <Galleon />
+      <TurbulentSea />
+      <Rain />
+      <LightningFlash />
+    </SceneFrame>
+  );
+}
